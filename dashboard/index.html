@@ -3,15 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Irrigation Copilot · Precision Agricultural Water Management</title>
+  <title>Smart Irrigation Copilot · Precision Agricultural Water Management v1.1</title>
   <style>
     :root {
       --bg: #060a08;
+      --bg-gradient: radial-gradient(circle at 50% -20%, #0d2818 0%, var(--bg) 65%);
       --card-bg: rgba(16, 26, 20, 0.72);
       --card-border: rgba(48, 209, 88, 0.12);
       --card-hover: rgba(48, 209, 88, 0.24);
+      --card-inner: rgba(0, 0, 0, 0.35);
+      --input-bg: rgba(255, 255, 255, 0.05);
       --text: #f5f5f7;
       --text-muted: #868e88;
+      --canvas-bg: rgba(0, 0, 0, 0.3);
+      --canvas-border: rgba(255, 255, 255, 0.04);
       --emerald: #30d158;
       --emerald-glow: rgba(48, 209, 88, 0.35);
       --water-blue: #0a84ff;
@@ -20,31 +25,50 @@
       --radius: 18px;
     }
 
+    body.light-mode {
+      --bg: #f4f7f5;
+      --bg-gradient: radial-gradient(circle at 50% -20%, #e2f4e8 0%, #f4f7f5 60%);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --card-hover: rgba(48, 209, 88, 0.35);
+      --card-inner: rgba(0, 0, 0, 0.035);
+      --input-bg: rgba(0, 0, 0, 0.05);
+      --text: #1d1f1d;
+      --text-muted: #626863;
+      --canvas-bg: rgba(238, 243, 240, 0.9);
+      --canvas-border: rgba(0, 0, 0, 0.06);
+      --emerald: #1fa443;
+      --emerald-glow: rgba(31, 164, 67, 0.2);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-      background: radial-gradient(circle at 50% -20%, #0d2818 0%, var(--bg) 65%);
+      background: var(--bg-gradient);
       color: var(--text);
       min-height: 100vh;
-      padding: 32px 24px;
+      padding: 36px 32px;
       -webkit-font-smoothing: antialiased;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
-    .container { max-width: 1240px; margin: 0 auto; }
+    .container { max-width: 1400px; margin: 0 auto; }
 
     header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
       padding-bottom: 24px;
       border-bottom: 1px solid var(--card-border);
       margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .brand h1 {
       font-size: 2.3rem;
       font-weight: 700;
       letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #fff 40%, #7ee787 100%);
+      background: linear-gradient(135deg, var(--text) 40%, var(--emerald) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -66,20 +90,49 @@
       gap: 6px;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-action-small {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .btn-action-small:hover {
+      border-color: var(--emerald);
+      transform: translateY(-1px);
+    }
+    .btn-action-small.primary {
+      background: var(--emerald);
+      color: #060a08;
+      border: none;
+      box-shadow: 0 4px 14px var(--emerald-glow);
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
       gap: 24px;
     }
-    .col-4 { grid-column: span 4; }
     .col-5 { grid-column: span 5; }
-    .col-6 { grid-column: span 6; }
     .col-7 { grid-column: span 7; }
-    .col-8 { grid-column: span 8; }
     .col-12 { grid-column: span 12; }
 
-    @media (max-width: 900px) {
-      .col-4, .col-5, .col-6, .col-7, .col-8 { grid-column: span 12; }
+    @media (max-width: 1024px) {
+      .col-5, .col-7 { grid-column: span 12; }
     }
 
     .card {
@@ -89,7 +142,7 @@
       -webkit-backdrop-filter: blur(24px);
       border-radius: var(--radius);
       padding: 24px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
       transition: all 0.2s ease;
     }
     .card:hover {
@@ -110,19 +163,38 @@
       line-height: 1.4;
     }
 
+    /* Sub-secciones colapsables o divididas */
+    .section-divider {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--emerald);
+      font-weight: 700;
+      margin: 20px 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--card-border);
+    }
+
     /* Form Controls */
-    .form-group { margin-bottom: 18px; }
+    .form-group { margin-bottom: 16px; }
     .form-header {
       display: flex;
       justify-content: space-between;
       font-size: 0.88rem;
       margin-bottom: 6px;
-      color: #d1d8d3;
+      color: var(--text);
     }
     .form-val {
       font-family: ui-monospace, SFMono-Regular, monospace;
       font-weight: 600;
-      color: #7ee787;
+      color: var(--emerald);
     }
     input[type="range"] {
       width: 100%;
@@ -132,6 +204,9 @@
       outline: none;
       -webkit-appearance: none;
       appearance: none;
+    }
+    body.light-mode input[type="range"] {
+      background: rgba(0, 0, 0, 0.1);
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
@@ -143,28 +218,32 @@
       cursor: pointer;
       border: 2px solid var(--emerald);
     }
-    select {
+    select, input[type="text"], input[type="number"] {
       width: 100%;
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--input-bg);
       border: 1px solid var(--card-border);
-      color: #fff;
+      color: var(--text);
       padding: 10px 14px;
       border-radius: 10px;
       font-size: 0.92rem;
       outline: none;
+      transition: border-color 0.2s, background 0.2s;
     }
-    select:focus { border-color: var(--emerald); }
+    select:focus, input:focus { border-color: var(--emerald); }
 
     /* Metric Grid */
     .metric-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-top: 20px;
+      margin-top: 18px;
+    }
+    @media (max-width: 600px) {
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
     }
     .metric-box {
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
       padding: 14px;
       border-radius: 12px;
     }
@@ -173,13 +252,13 @@
       background: rgba(48, 209, 88, 0.08);
     }
     .metric-label {
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
     .metric-num {
-      font-size: 1.45rem;
+      font-size: 1.35rem;
       font-weight: 700;
       margin-top: 4px;
       font-family: ui-monospace, SFMono-Regular, monospace;
@@ -187,11 +266,11 @@
 
     canvas {
       width: 100% !important;
-      height: 280px !important;
-      background: rgba(0, 0, 0, 0.3);
+      height: 270px !important;
+      background: var(--canvas-bg);
       border-radius: 12px;
       margin-top: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--canvas-border);
     }
 
     .badge-status {
@@ -206,12 +285,29 @@
     .status-warn { background: rgba(255, 159, 10, 0.2); color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.4); }
     .status-alert { background: rgba(255, 69, 58, 0.2); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.4); }
 
+    /* Alerta DGA de Derechos de Agua */
+    .dga-box {
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      border: 1px solid var(--card-border);
+      background: var(--card-inner);
+    }
+    .dga-box.ok { border-left: 4px solid var(--emerald); }
+    .dga-box.warning { border-left: 4px solid var(--amber); background: rgba(255, 159, 10, 0.08); }
+    .dga-box.critical { border-left: 4px solid var(--danger); background: rgba(255, 69, 58, 0.08); }
+
     .btn {
       background: var(--emerald);
       color: #060a08;
       border: none;
       padding: 12px 20px;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 700;
       border-radius: 10px;
       cursor: pointer;
@@ -219,10 +315,54 @@
       transition: all 0.2s;
       width: 100%;
       margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     .btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 22px var(--emerald-glow);
+    }
+
+    /* Modal Apple Glass */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
     }
 
     .footer {
@@ -241,33 +381,39 @@
   <!-- Header -->
   <header>
     <div class="brand">
-      <span class="badge-pill">💧 Smart Irrigation Copilot v1.0</span>
+      <span class="badge-pill">💧 Smart Irrigation Copilot v1.1</span>
       <h1>Precision Agricultural Water Cockpit</h1>
       <p>Diseñado por Cristián González Huenchún · Ingeniero Agrónomo & Magíster (c) Enología, U. de Chile</p>
     </div>
-    <div style="text-align: right;">
-      <span style="font-size: 0.85rem; color: #868e88;">Modelado FAO-56 · RDC · Sensores Scholander</span>
+    <div class="header-actions">
+      <button class="btn-action-small primary" onclick="abrirModalNuevoCuartel()">
+        <span>➕</span> Añadir Cuartel
+      </button>
+      <button class="btn-action-small" id="themeBtn" onclick="toggleTheme()" title="Cambiar tema">
+        <span id="themeIcon">☀️</span>
+        <span id="themeText">Modo Claro</span>
+      </button>
+      <span style="font-size: 0.85rem; color: var(--text-muted);">FAO-56 · RDC · DGA Chile</span>
     </div>
   </header>
 
   <div class="grid">
-    <!-- Panel Izquierdo: Configuración de Campo -->
+    <!-- Panel Izquierdo: Configuración Integral de Campo -->
     <div class="col-5 card">
       <div class="card-title">
         <span>Parámetros de Cuartel & Agroclima</span>
-        <span style="font-size:0.8rem; color:#7ee787;">Chile Central</span>
+        <span style="font-size:0.8rem; color:var(--emerald);">Sensor Suite Integrada</span>
       </div>
-      <p class="card-subtitle">Selecciona el sector productivo o ajusta los parámetros edafoclimáticos.</p>
+      <p class="card-subtitle">Selecciona el sector productivo o incorpora nuevas variables agronómicas de terreno.</p>
 
       <div class="form-group">
         <label class="form-header"><span>Cuartel Productivo / Fundo</span></label>
         <select id="select-cuartel" onchange="cambiarCuartel()">
-          <option value="cuartel_vik_cabernet">🍇 Cuartel 12 · Cabernet Sauvignon (Millahue, Cachapoal)</option>
-          <option value="cuartel_principal_chardonnay">🥂 Cuartel 08 · Chardonnay (Pirque, Maipo)</option>
-          <option value="cuartel_curico_cerezos">🍒 Cuartel 03 · Cerezos Lapins (Curicó)</option>
-          <option value="cuartel_limari_syrah">🍷 Cuartel 05 · Syrah Riego Deficitario (Limarí)</option>
+          <!-- Opciones dinámicas -->
         </select>
       </div>
+
+      <div class="section-divider">1. Demanda Climática & Lluvia (FAO-56)</div>
 
       <div class="form-group">
         <div class="form-header">
@@ -278,18 +424,32 @@
       </div>
 
       <div class="form-group">
-        <label class="form-header"><span>Fenofase del Cultivo</span></label>
-        <select id="select-fenofase" onchange="calcularRiego()">
-          <option value="cuaja_envero">Cuaja a Envero (Ventana Clave RDC)</option>
-          <option value="envero_cosecha">Envero a Cosecha (Maduración)</option>
-          <option value="floracion">Brotación a Floración</option>
-          <option value="postcosecha">Post-Cosecha (Recarga de Reservas)</option>
-        </select>
+        <div class="form-header">
+          <span>🌧️ Lluvia Acumulada en Intervalo (mm)</span>
+          <span class="form-val" id="val-lluvia">0.0 mm</span>
+        </div>
+        <input type="range" id="input-lluvia" min="0.0" max="40.0" step="0.5" value="0.0" oninput="calcularRiego()">
       </div>
 
       <div class="form-group">
+        <label class="form-header"><span>Fenofase Específica (8 Etapas)</span></label>
+        <select id="select-fenofase" onchange="calcularRiego()">
+          <option value="receso">1. Receso Invernal / Dormancia (Kc: 0.15)</option>
+          <option value="brotacion">2. Brotación / Desborre (Kc: 0.25)</option>
+          <option value="floracion">3. Floración / Antesis (Kc: 0.35 - Sin estrés)</option>
+          <option value="cuaja">4. Cuaja / Fruto Recién Formado (Kc: 0.45)</option>
+          <option value="crecimiento_verde" selected>5. Crecimiento Activo de Bayas (Ventana Clave RDC · Kc: 0.38)</option>
+          <option value="envero_temprano">6. Envero Temprano / Véraison (Kc: 0.42)</option>
+          <option value="maduracion_plena">7. Maduración Plena / Pre-cosecha (Kc: 0.38)</option>
+          <option value="postcosecha">8. Post-Cosecha (Recarga de Reservas · Kc: 0.55)</option>
+        </select>
+      </div>
+
+      <div class="section-divider">2. Sensores Fisiológicos de Terreno</div>
+
+      <div class="form-group">
         <div class="form-header">
-          <span>Potencial Hídrico de Tallo (Ψ_x Scholander)</span>
+          <span>Cámara Scholander (Ψ_x Tallo)</span>
           <span class="form-val" id="val-scholander">-1.15 MPa</span>
         </div>
         <input type="range" id="input-scholander" min="-1.80" max="-0.60" step="0.05" value="-1.15" oninput="calcularRiego()">
@@ -297,202 +457,432 @@
 
       <div class="form-group">
         <div class="form-header">
-          <span>Superficie del Sector (ha)</span>
-          <span class="form-val" id="val-ha">4.5 ha</span>
+          <span>Sonda FDR Suelo (Humedad Volumétrica media 0-60 cm)</span>
+          <span class="form-val" id="val-fdr">22.0%</span>
         </div>
-        <input type="range" id="input-ha" min="1.0" max="25.0" step="0.5" value="4.5" oninput="calcularRiego()">
+        <input type="range" id="input-fdr" min="10.0" max="40.0" step="0.5" value="22.0" oninput="calcularRiego()">
       </div>
 
       <div class="form-group">
         <div class="form-header">
-          <span>Días de Frecuencia / Intervalo de Riego</span>
+          <span>Dendrometría (MDS Contracción Diaria de Tronco)</span>
+          <span class="form-val" id="val-dendro">145 µm</span>
+        </div>
+        <input type="range" id="input-dendro" min="20" max="350" step="5" value="145" oninput="calcularRiego()">
+      </div>
+
+      <div class="section-divider">3. Operación y Régimen de Turno</div>
+
+      <div class="form-group">
+        <div class="form-header">
+          <span>Superficie del Sector (ha)</span>
+          <span class="form-val" id="val-ha">4.5 ha</span>
+        </div>
+        <input type="range" id="input-ha" min="0.5" max="30.0" step="0.5" value="4.5" oninput="calcularRiego()">
+      </div>
+
+      <div class="form-group">
+        <div class="form-header">
+          <span>Frecuencia / Intervalo de Riego</span>
           <span class="form-val" id="val-dias">3 días</span>
         </div>
-        <input type="range" id="input-dias" min="1" max="7" step="1" value="3" oninput="calcularRiego()">
+        <input type="range" id="input-dias" min="1" max="10" step="1" value="3" oninput="calcularRiego()">
       </div>
     </div>
 
-    <!-- Panel Derecho: Resultados Hidráulicos y Gráfico de Humedad -->
+    <!-- Panel Derecho: Diagnóstico, Balanza Edafológica & Ley de Aguas DGA -->
     <div class="col-7 card">
       <div class="card-title">
-        <span>Prescripción de Riego & Balanza Edafológica</span>
+        <span>Prescripción Hidráulica & Balance Hídrico</span>
         <span id="badge-riego" class="badge-status status-rdc">RDC Óptimo Activo</span>
       </div>
       <p class="card-subtitle" id="desc-riego">
-        Déficit hídrico moderado inducido: máxima concentración de polifenoles y control de vigor vegetativo.
+        Déficit hídrico moderado inducido: control de vigor vegetativo y síntesis de polifenoles nobles.
       </p>
 
       <div class="metric-grid">
         <div class="metric-box highlight">
           <div class="metric-label">Tiempo de Riego Requerido</div>
-          <div class="metric-num" id="out-horas" style="color:#7ee787;">4h 15m</div>
+          <div class="metric-num" id="out-horas" style="color:var(--emerald);">4h 15m</div>
         </div>
         <div class="metric-box">
-          <div class="metric-label">Lámina Bruta Acumulada</div>
-          <div class="metric-num" id="out-lamina-bruta">11.8 <span style="font-size:0.9rem;">mm</span></div>
+          <div class="metric-label">Lámina Bruta a Aplicar</div>
+          <div class="metric-num" id="out-lamina-bruta">11.8 <span style="font-size:0.85rem;">mm</span></div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Lluvia Efectiva (Pe)</div>
+          <div class="metric-num" id="out-pe" style="color:var(--water-blue);">0.0 <span style="font-size:0.85rem;">mm</span></div>
         </div>
         <div class="metric-box">
           <div class="metric-label">Volumen Total Agua</div>
-          <div class="metric-num" id="out-volumen-m3" style="color:#64b5f6;">531 <span style="font-size:0.9rem;">m³</span></div>
+          <div class="metric-num" id="out-volumen-m3" style="color:#64b5f6;">531 <span style="font-size:0.85rem;">m³</span></div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Caudal Demandado</div>
+          <div class="metric-num" id="out-caudal-dem">34.7 <span style="font-size:0.85rem;">L/s</span></div>
         </div>
         <div class="metric-box">
           <div class="metric-label">Energía Bombeo Estimada</div>
-          <div class="metric-num" id="out-kwh">68.5 <span style="font-size:0.9rem;">kWh</span></div>
+          <div class="metric-num" id="out-kwh">68.5 <span style="font-size:0.85rem;">kWh</span></div>
+        </div>
+      </div>
+
+      <!-- Módulo de Cumplimiento Legal DGA (Código de Aguas Chile) -->
+      <div id="dga-container" class="dga-box ok">
+        <div style="font-size: 1.3rem;">⚖️</div>
+        <div>
+          <b>Estado Legal de Extracción (Código de Aguas DGA):</b>
+          <div id="dga-text" style="color: var(--text-muted); margin-top: 2px;">
+            El caudal demandado (34.7 L/s) se encuentra dentro de los derechos continuos asignados (40.0 L/s). Extracción 100% en regla.
+          </div>
         </div>
       </div>
 
       <!-- Gráfico de Balance Hídrico -->
       <canvas id="canvasBalance"></canvas>
 
-      <button class="btn" onclick="generarOrden()">📄 Generar Orden de Riego para Caseta</button>
+      <button class="btn" onclick="generarOrden()">📄 Generar Orden de Riego para Caseta de Bombas</button>
     </div>
 
     <!-- Panel Inferior: Tabla de Recomendaciones Agronómicas -->
     <div class="col-12 card">
       <div class="card-title"><span>Recomendaciones Técnicas Específicas del Copiloto</span></div>
-      <div id="panel-recs" style="font-size: 0.92rem; color: #d1d8d3; line-height: 1.6; margin-top: 10px;">
+      <div id="panel-recs" style="font-size: 0.92rem; color: var(--text); line-height: 1.6; margin-top: 10px;">
         <!-- Se llena con JS -->
       </div>
     </div>
   </div>
 
   <footer class="footer">
-    Smart Irrigation Copilot · Agente de Riego de Precisión de Código Abierto · Chile · 2026
+    Smart Irrigation Copilot v1.1 · Agente de Riego de Precisión de Código Abierto · Chile · 2026
   </footer>
 </div>
 
+<!-- Modal: Añadir Nuevo Cuartel -->
+<div class="modal-overlay" id="modalNuevoCuartel">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="font-size: 1.25rem;">➕ Añadir Nuevo Cuartel / Sector de Riego</h3>
+      <button class="modal-close" onclick="cerrarModalNuevoCuartel()">×</button>
+    </div>
+
+    <form onsubmit="guardarNuevoCuartel(event)">
+      <div class="form-group">
+        <label class="form-header"><span>Nombre del Cuartel / Sector</span></label>
+        <input type="text" id="nuevo-nombre" required placeholder="Ej: Cuartel 07 · Carmenère Los Lingues">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-header"><span>Especie / Cultivo</span></label>
+          <select id="nuevo-especie">
+            <option value="vid_tinta">Vid Vinífera Tinta (Cabernet, Carmenère)</option>
+            <option value="vid_blanca">Vid Vinífera Blanca (Chardonnay, SB)</option>
+            <option value="cerezo">Cerezos (Lapins, Santina)</option>
+            <option value="nogal">Nogales (Chandler, Serr)</option>
+            <option value="palto">Paltos (Hass)</option>
+            <option value="citrico">Cítricos (Mandarinas W. Murcott)</option>
+            <option value="olivo">Olivos (Arbequina, Frantoio)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-header"><span>Superficie Inicial (ha)</span></label>
+          <input type="number" id="nuevo-ha" min="0.5" max="100" step="0.5" value="5.0" required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-header"><span>Tipo de Suelo & CAD (mm)</span></label>
+          <select id="nuevo-suelo">
+            <option value="franco_arcilloso">Franco-Arcilloso (CAD: 75 mm)</option>
+            <option value="franco_arenoso">Franco-Arenoso Pedregoso (CAD: 48 mm)</option>
+            <option value="franco_profundo">Franco Limoso Profundo (CAD: 95 mm)</option>
+            <option value="arcilloso_pesado">Arcilloso Pesado (CAD: 85 mm)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-header"><span>Sistema de Riego</span></label>
+          <select id="nuevo-sistema">
+            <option value="goteo_autocompensante">Goteo Autocompensante (1.6 a 2.4 L/h)</option>
+            <option value="cinta_riego">Cinta de Riego (1.0 L/h)</option>
+            <option value="microaspersion">Microaspersión (35 a 50 L/h)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-header"><span>Precipitación Sistema (mm/h)</span></label>
+          <input type="number" id="nuevo-precipitacion" min="0.5" max="15.0" step="0.1" value="2.8" required>
+        </div>
+        <div class="form-group">
+          <label class="form-header"><span>Derechos de Agua DGA (L/s)</span></label>
+          <input type="number" id="nuevo-dga" min="1.0" max="200.0" step="1.0" value="35.0" required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-header"><span>Potencia Motor Bombeo (HP)</span></label>
+          <input type="number" id="nuevo-hp" min="5" max="150" step="1" value="20" required>
+        </div>
+        <div class="form-group">
+          <label class="form-header"><span>Presión Nominal Trabajo (bar)</span></label>
+          <input type="number" id="nuevo-presion" min="0.5" max="5.0" step="0.1" value="1.5" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" style="margin-top: 10px;">💾 Guardar Cuartel & Activar en Tablero</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Orden de Riego Generada -->
+<div class="modal-overlay" id="modalOrden">
+  <div class="modal-content" style="max-width: 720px;">
+    <div class="modal-header">
+      <h3 style="font-size: 1.25rem;">📄 Orden Operativa Oficial para Caseta de Bombas</h3>
+      <button class="modal-close" onclick="cerrarModalOrden()">×</button>
+    </div>
+    <div id="orden-body" style="font-family: monospace; white-space: pre-wrap; font-size: 0.88rem; background: var(--input-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); max-height: 400px; overflow-y: auto;">
+      <!-- Se llena dinámicamente -->
+    </div>
+    <div style="display: flex; gap: 12px; margin-top: 16px;">
+      <button class="btn" onclick="copiarOrden()" style="margin-top: 0;">📋 Copiar Orden al Portapapeles</button>
+      <button class="btn-action-small" onclick="cerrarModalOrden()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  const CUARTELES = {
+  // Base de datos de Cuarteles precargados
+  const DEFAULT_CUARTELES = {
     cuartel_vik_cabernet: {
-      nombre: "Cuartel 12 · Cabernet Sauvignon (Millahue)",
+      id: "cuartel_vik_cabernet",
+      nombre: "Cuartel 12 · Cabernet Sauvignon (Millahue, Cachapoal)",
       suelo: "Franco-Arcilloso Pedregoso (CAD: 68 mm)",
       cad: 68,
       p: 0.40,
       precipitacion_sistema: 2.8, // mm/h
-      caudal_m3_h: 126,
-      potencia_hp: 20
+      potencia_hp: 20,
+      presion_bar: 1.5,
+      dga_l_s: 38.0,
+      ha: 4.5
     },
     cuartel_principal_chardonnay: {
-      nombre: "Cuartel 08 · Chardonnay (Pirque)",
-      suelo: "Franco con Grava (CAD: 55 mm)",
+      id: "cuartel_principal_chardonnay",
+      nombre: "Cuartel 08 · Chardonnay (Pirque, Maipo)",
+      suelo: "Franco con Grava Aluvial (CAD: 55 mm)",
       cad: 55,
       p: 0.35,
       precipitacion_sistema: 3.2,
-      caudal_m3_h: 144,
-      potencia_hp: 25
+      potencia_hp: 25,
+      presion_bar: 1.8,
+      dga_l_s: 45.0,
+      ha: 5.0
     },
     cuartel_curico_cerezos: {
+      id: "cuartel_curico_cerezos",
       nombre: "Cuartel 03 · Cerezos Lapins (Curicó)",
-      suelo: "Franco Profundo (CAD: 95 mm)",
+      suelo: "Franco Limoso Profundo (CAD: 95 mm)",
       cad: 95,
       p: 0.30,
       precipitacion_sistema: 3.0,
-      caudal_m3_h: 135,
-      potencia_hp: 22
+      potencia_hp: 22,
+      presion_bar: 1.6,
+      dga_l_s: 40.0,
+      ha: 6.0
     },
     cuartel_limari_syrah: {
-      nombre: "Cuartel 05 · Syrah (Limarí)",
+      id: "cuartel_limari_syrah",
+      nombre: "Cuartel 05 · Syrah RDC (Limarí)",
       suelo: "Franco-Arenoso Calcáreo (CAD: 48 mm)",
       cad: 48,
       p: 0.45,
       precipitacion_sistema: 2.4,
-      caudal_m3_h: 108,
-      potencia_hp: 18
+      potencia_hp: 18,
+      presion_bar: 1.5,
+      dga_l_s: 25.0,
+      ha: 4.0
     }
   };
 
-  let cuartelActivo = CUARTELES.cuartel_vik_cabernet;
+  // Cargar cuarteles desde localStorage o por defecto
+  function obtenerCuarteles() {
+    const guardados = localStorage.getItem('smart_irrigation_cuarteles');
+    if (guardados) {
+      try {
+        return { ...DEFAULT_CUARTELES, ...JSON.parse(guardados) };
+      } catch (e) {
+        return DEFAULT_CUARTELES;
+      }
+    }
+    return DEFAULT_CUARTELES;
+  }
+
+  let CUARTELES = obtenerCuarteles();
+  let cuartelActivoKey = 'cuartel_vik_cabernet';
+
+  function poblarSelectorCuarteles() {
+    const sel = document.getElementById('select-cuartel');
+    sel.innerHTML = '';
+    Object.keys(CUARTELES).forEach(key => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = CUARTELES[key].nombre;
+      sel.appendChild(opt);
+    });
+    sel.value = cuartelActivoKey;
+  }
 
   function cambiarCuartel() {
-    const val = document.getElementById('select-cuartel').value;
-    cuartelActivo = CUARTELES[val];
+    cuartelActivoKey = document.getElementById('select-cuartel').value;
+    const c = CUARTELES[cuartelActivoKey];
+    if (c) {
+      document.getElementById('input-ha').value = c.ha || 4.5;
+    }
     calcularRiego();
   }
 
+  // Ecuación USDA SCS de Precipitación Efectiva
+  function calcularPe(lluviaTotal) {
+    const p = Math.max(0, lluviaTotal);
+    if (p <= 5.0) return 0.0;
+    if (p <= 250.0) return (p * (125.0 - 0.2 * p)) / 125.0;
+    return 125.0 + 0.1 * p;
+  }
+
   function calcularRiego() {
+    const c = CUARTELES[cuartelActivoKey] || DEFAULT_CUARTELES.cuartel_vik_cabernet;
+
     const et0 = parseFloat(document.getElementById('input-et0').value);
+    const lluvia = parseFloat(document.getElementById('input-lluvia').value);
     const scholander = parseFloat(document.getElementById('input-scholander').value);
+    const fdr = parseFloat(document.getElementById('input-fdr').value);
+    const dendro = parseInt(document.getElementById('input-dendro').value);
     const ha = parseFloat(document.getElementById('input-ha').value);
     const dias = parseInt(document.getElementById('input-dias').value);
     const fenofase = document.getElementById('select-fenofase').value;
 
     document.getElementById('val-et0').innerText = et0.toFixed(1) + ' mm/día';
+    document.getElementById('val-lluvia').innerText = lluvia.toFixed(1) + ' mm';
     document.getElementById('val-scholander').innerText = scholander.toFixed(2) + ' MPa';
+    document.getElementById('val-fdr').innerText = fdr.toFixed(1) + '%';
+    document.getElementById('val-dendro').innerText = dendro + ' µm';
     document.getElementById('val-ha').innerText = ha.toFixed(1) + ' ha';
     document.getElementById('val-dias').innerText = dias + (dias === 1 ? ' día' : ' días');
 
-    // Determinar Kc y factor Ks
-    let kc = 0.50;
-    if (fenofase === 'cuaja_envero') kc = 0.38; // Con RDC
-    else if (fenofase === 'envero_cosecha') kc = 0.45;
-    else if (fenofase === 'floracion') kc = 0.35;
-    else if (fenofase === 'postcosecha') kc = 0.55;
+    // Determinar Kc según las 8 fenofases
+    const tablaKc = {
+      receso: 0.15,
+      brotacion: 0.25,
+      floracion: 0.35,
+      cuaja: 0.45,
+      crecimiento_verde: 0.38, // RDC activo
+      envero_temprano: 0.42,
+      maduracion_plena: 0.38,
+      postcosecha: 0.55
+    };
+    const kc = tablaKc[fenofase] || 0.40;
 
-    // Estrés según Scholander
+    // Diagnóstico combinado de sensores (Scholander, FDR, Dendrometría)
     let ks = 1.0;
     const badge = document.getElementById('badge-riego');
     const desc = document.getElementById('desc-riego');
 
-    if (scholander > -0.90) {
+    if (scholander > -0.90 && dendro < 80) {
       ks = 1.0;
       badge.className = 'badge-status status-ok';
       badge.innerText = 'Hidratación Plena';
-      desc.innerText = 'Planta sin estrés hídrico. En uva tinta de alta gama, favorece vigor excesivo; monitorear.';
-    } else if (scholander >= -1.25) {
+      desc.innerText = 'Planta en confort hídrico total. Si buscas calidad enológica, cuida el vigor excesivo y brotes chupones.';
+    } else if (scholander >= -1.25 && dendro <= 200) {
       ks = 0.85;
       badge.className = 'badge-status status-rdc';
       badge.innerText = 'RDC Óptimo Activo';
-      desc.innerText = 'Rango perfecto de estrés moderado: síntesis de antocianos y detención de crecimiento vegetativo.';
-    } else if (scholander >= -1.45) {
+      desc.innerText = 'Rango perfecto de estrés hídrico moderado: detención oportuna de pámpanos y estímulo a la síntesis polifenólica.';
+    } else if (scholander >= -1.45 || dendro > 200) {
       ks = 0.70;
       badge.className = 'badge-status status-warn';
       badge.innerText = 'Estrés Hídrico Alto';
-      desc.innerText = 'Cierre estomático severo y caída de fotosíntesis. Conviene anticipar el riego.';
+      desc.innerText = 'Cierre estomático acentuado. La tasa fotosintética neta decae fuertemente. Conviene programar reposición.';
     } else {
       ks = 0.50;
       badge.className = 'badge-status status-alert';
       badge.innerText = 'Estrés Crítico Severo';
-      desc.innerText = 'Riesgo de defoliación basal y deshidratación de racimos. Regar de inmediato.';
+      desc.innerText = 'Riesgo inminente de deshidratación de racimos y pérdida de área foliar por defoliación basal. Regar urgente.';
     }
 
+    // Demanda y Descuento por Lluvia
     const etcDiaria = et0 * kc * ks;
     const etcAcumulada = etcDiaria * dias;
-    const eficiencia = 0.90;
-    const laminaBruta = etcAcumulada / eficiencia;
+    const pe = calcularPe(lluvia);
+    document.getElementById('out-pe').innerHTML = pe.toFixed(1) + ' <span style="font-size:0.85rem;">mm</span>';
 
-    // Tiempo de riego
-    const precipitacion = cuartelActivo.precipitacion_sistema;
+    const laminaNeta = Math.max(0.0, etcAcumulada - pe);
+    const eficiencia = 0.90;
+    const laminaBruta = laminaNeta / eficiencia;
+
+    // Horas y volumen
+    const precipitacion = c.precipitacion_sistema || 2.8;
     const horasDecimales = laminaBruta / precipitacion;
     const horasEnteras = Math.floor(horasDecimales);
     const minutos = Math.round((horasDecimales - horasEnteras) * 60);
 
     const volumenM3 = (laminaBruta * 10.0) * ha;
-    const kwh = horasDecimales * (cuartelActivo.potencia_hp * 0.746);
+    const caudalL_s = (ha * 10000.0 * (precipitacion / 1000.0) * 1000.0) / 3600.0;
+    const kwh = horasDecimales * (c.potencia_hp * 0.746);
 
-    document.getElementById('out-horas').innerText = `${horasEnteras}h ${minutos}m`;
-    document.getElementById('out-lamina-bruta').innerHTML = laminaBruta.toFixed(1) + ' <span style="font-size:0.9rem;">mm</span>';
-    document.getElementById('out-volumen-m3').innerHTML = Math.round(volumenM3) + ' <span style="font-size:0.9rem;">m³</span>';
-    document.getElementById('out-kwh').innerHTML = kwh.toFixed(1) + ' <span style="font-size:0.9rem;">kWh</span>';
+    if (laminaBruta <= 0.05) {
+      document.getElementById('out-horas').innerText = '0h 0m (Lluvia)';
+      document.getElementById('out-lamina-bruta').innerHTML = '0.0 <span style="font-size:0.85rem;">mm</span>';
+      desc.innerText = '🌧️ La lluvia acumulada cubre la totalidad de la evapotranspiración del período. Riego innecesario.';
+    } else {
+      document.getElementById('out-horas').innerText = `${horasEnteras}h ${minutos}m`;
+      document.getElementById('out-lamina-bruta').innerHTML = laminaBruta.toFixed(1) + ' <span style="font-size:0.85rem;">mm</span>';
+    }
 
-    // Recomendaciones
+    document.getElementById('out-volumen-m3').innerHTML = Math.round(volumenM3) + ' <span style="font-size:0.85rem;">m³</span>';
+    document.getElementById('out-caudal-dem').innerHTML = caudalL_s.toFixed(1) + ' <span style="font-size:0.85rem;">L/s</span>';
+    document.getElementById('out-kwh').innerHTML = kwh.toFixed(1) + ' <span style="font-size:0.85rem;">kWh</span>';
+
+    // Chequeo Ley de Aguas DGA
+    const dgaBox = document.getElementById('dga-container');
+    const dgaTxt = document.getElementById('dga-text');
+    const caudalLegal = c.dga_l_s || 35.0;
+
+    if (caudalL_s <= caudalLegal) {
+      dgaBox.className = 'dga-box ok';
+      dgaTxt.innerHTML = `Caudal demandado (<b>${caudalL_s.toFixed(1)} L/s</b>) dentro de los derechos continuos asignados (<b>${caudalLegal.toFixed(1)} L/s</b>). Extracción legalmente autorizada.`;
+    } else if (caudalL_s <= caudalLegal * 1.25) {
+      dgaBox.className = 'dga-box warning';
+      dgaTxt.innerHTML = `⚠️ Caudal demandado (<b>${caudalL_s.toFixed(1)} L/s</b>) excede el derecho continuo (<b>${caudalLegal.toFixed(1)} L/s</b>). Se aconseja fraccionar el riego en 2 subsectores o regar de noche con acumulación en tranque.`;
+    } else {
+      dgaBox.className = 'dga-box critical';
+      dgaTxt.innerHTML = `🚨 ALERTA DGA: Demanda de extracción (<b>${caudalL_s.toFixed(1)} L/s</b>) sobrepasa significativamente los derechos legales (<b>${caudalLegal.toFixed(1)} L/s</b>). Obligatorio operar desde tranque de regulación o solicitar redistribución de turnos en Junta de Vigilancia.`;
+    }
+
+    // Recomendaciones Agronómicas Dinámicas
     const panelRecs = document.getElementById('panel-recs');
     panelRecs.innerHTML = `
       <ul style="padding-left: 20px;">
-        <li><b>Horario de Operación:</b> Ejecutar el turno entre las 22:00 y las 06:00 horas para aprovechar tarifas valle de energía eléctrica y reducir pérdidas por evaporación nocturna (ahorro del 12%).</li>
-        <li><b>Chequeo de Presión en Manómetros:</b> Verificar que la presión en cola de regador marque ≥ 1.2 bar para asegurar coeficiente de uniformidad CU ≥ 90%.</li>
-        <li><b>Suelo & Fertirriego:</b> En este suelo (${cuartelActivo.suelo}), inyectar el fertilizante en el segundo tercio del tiempo de riego (${Math.round(horasDecimales*0.35)}h a ${Math.round(horasDecimales*0.75)}h) para evitar lixiviación hacia el fondo del perfil radicular.</li>
+        <li><b>Ventana Horaria & Eficiencia Energética:</b> Programar la apertura de válvulas entre las 23:00 y las 06:30 hrs para operar en tarifas valle (ahorro de hasta 25% en costo eléctrico) y evitar pérdidas por evaporación eólica.</li>
+        <li><b>Presión en Cola de Subunidad:</b> Verificar manómetro en final de lateral a ≥ <b>${(c.presion_bar * 0.85).toFixed(2)} bar</b> para garantizar un Coeficiente de Uniformidad de Christiansen (CU) superior al 90%.</li>
+        <li><b>Manejo Edafológico (${c.suelo}):</b> Sondas FDR a 40 cm marcan <b>${fdr}%</b>. Dosificar la inyección de fertirriego entre el 30% y 75% del tiempo de riego para situar los nutrientes en la zona de mayor densidad radicular activa.</li>
       </ul>
     `;
 
-    dibujarGraficoBalance(cuartelActivo.cad, cuartelActivo.p, laminaBruta);
+    dibujarGraficoBalance(c.cad, c.p, laminaBruta, pe);
   }
 
-  function dibujarGraficoBalance(cad, p, laminaRiego) {
+  function dibujarGraficoBalance(cad, p, laminaRiego, pe) {
     const canvas = document.getElementById('canvasBalance');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     canvas.width = canvas.parentElement.clientWidth - 48;
-    canvas.height = 280;
+    canvas.height = 270;
+
+    const isLight = document.body.classList.contains('light-mode');
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -500,51 +890,49 @@
     const w = canvas.width - padL - padR;
     const h = canvas.height - padT - padB;
 
-    const umbralCritico = cad * (1.0 - p); // Humedad residual al umbral
+    const umbralCritico = cad * (1.0 - p);
 
     // Líneas guía
-    // Capacidad de campo (100%)
-    ctx.strokeStyle = 'rgba(48, 209, 88, 0.4)';
+    ctx.strokeStyle = isLight ? 'rgba(31, 164, 67, 0.5)' : 'rgba(48, 209, 88, 0.4)';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(padL, padT);
     ctx.lineTo(padL + w, padT);
     ctx.stroke();
-    ctx.fillStyle = '#30d158';
+    ctx.fillStyle = isLight ? '#1a8236' : '#30d158';
     ctx.font = '10px ui-monospace';
     ctx.fillText(`Capacidad de Campo (${cad} mm)`, padL + 8, padT + 12);
 
-    // Umbral Crítico
     const yUmbral = padT + (p * h);
-    ctx.strokeStyle = 'rgba(255, 159, 10, 0.5)';
+    ctx.strokeStyle = isLight ? 'rgba(217, 130, 0, 0.6)' : 'rgba(255, 159, 10, 0.5)';
     ctx.beginPath();
     ctx.moveTo(padL, yUmbral);
     ctx.lineTo(padL + w, yUmbral);
     ctx.stroke();
-    ctx.fillStyle = '#ff9f0a';
-    ctx.fillText(`Umbral Crítico de Riego (${Math.round(umbralCritico)} mm)`, padL + 8, yUmbral - 4);
+    ctx.fillStyle = isLight ? '#b86f00' : '#ff9f0a';
+    ctx.fillText(`Umbral Crítico RDC (${Math.round(umbralCritico)} mm)`, padL + 8, yUmbral - 4);
 
-    // Punto de marchitez (0 mm aprovechable)
-    ctx.strokeStyle = 'rgba(255, 69, 58, 0.4)';
+    ctx.strokeStyle = isLight ? 'rgba(209, 45, 36, 0.5)' : 'rgba(255, 69, 58, 0.4)';
     ctx.beginPath();
     ctx.moveTo(padL, padT + h);
     ctx.lineTo(padL + w, padT + h);
     ctx.stroke();
-    ctx.fillStyle = '#ff453a';
+    ctx.fillStyle = isLight ? '#b02118' : '#ff453a';
     ctx.fillText('Punto Marchitez Permanente (0 mm)', padL + 8, padT + h - 6);
     ctx.setLineDash([]);
 
-    // Simulación de 7 días de curva de agotamiento y recarga
+    // Simulación de curva de agotamiento con lluvia y riego
     ctx.strokeStyle = '#0a84ff';
     ctx.lineWidth = 3;
     ctx.beginPath();
 
+    const aporteLluvia = pe > 0 ? Math.min(cad * 0.3, pe) : 0;
     const puntos = [
       { d: 0, val: cad },
-      { d: 1, val: cad - 4.5 },
-      { d: 2, val: cad - 9.2 },
-      { d: 3, val: cad - 14.0 }, // Día de riego
-      { d: 3.1, val: Math.min(cad, cad - 14.0 + laminaRiego) }, // Recarga instantánea
+      { d: 1, val: Math.min(cad, cad - 4.5 + aporteLluvia) },
+      { d: 2, val: cad - 9.0 + (aporteLluvia * 0.5) },
+      { d: 3, val: cad - 14.0 },
+      { d: 3.1, val: Math.min(cad, cad - 14.0 + laminaRiego) },
       { d: 4, val: Math.min(cad, cad - 14.0 + laminaRiego) - 4.2 },
       { d: 5, val: Math.min(cad, cad - 14.0 + laminaRiego) - 8.8 },
       { d: 6, val: Math.min(cad, cad - 14.0 + laminaRiego) - 13.5 }
@@ -558,7 +946,6 @@
     });
     ctx.stroke();
 
-    // Puntos
     puntos.forEach(pt => {
       const x = padL + (pt.d / 6) * w;
       const y = padT + ((cad - pt.val) / cad) * h;
@@ -570,20 +957,138 @@
       ctx.stroke();
     });
 
-    // Leyendas
-    ctx.fillStyle = '#868e88';
+    ctx.fillStyle = isLight ? '#626863' : '#868e88';
     ctx.font = '10px -apple-system, sans-serif';
     ctx.fillText('Día 0', padL, padT + h + 18);
-    ctx.fillText('Día 3 (Riego)', padL + (w * 0.5) - 20, padT + h + 18);
+    ctx.fillText('Día 3 (Riego/Lluvia)', padL + (w * 0.5) - 35, padT + h + 18);
     ctx.fillText('Día 6', padL + w - 24, padT + h + 18);
   }
 
+  // Modales
+  function abrirModalNuevoCuartel() {
+    document.getElementById('modalNuevoCuartel').style.display = 'flex';
+  }
+  function cerrarModalNuevoCuartel() {
+    document.getElementById('modalNuevoCuartel').style.display = 'none';
+  }
+
+  function guardarNuevoCuartel(e) {
+    e.preventDefault();
+    const id = "cuartel_" + Date.now();
+    const nombre = document.getElementById('nuevo-nombre').value.trim();
+    const ha = parseFloat(document.getElementById('nuevo-ha').value);
+    const precipitacion = parseFloat(document.getElementById('nuevo-precipitacion').value);
+    const dga = parseFloat(document.getElementById('nuevo-dga').value);
+    const hp = parseFloat(document.getElementById('nuevo-hp').value);
+    const presion = parseFloat(document.getElementById('nuevo-presion').value);
+    const sueloSel = document.getElementById('nuevo-suelo');
+    const sueloTexto = sueloSel.options[sueloSel.selectedIndex].text;
+
+    let cad = 65;
+    if (sueloSel.value.includes('arcilloso_pesado')) cad = 85;
+    if (sueloSel.value.includes('franco_profundo')) cad = 95;
+    if (sueloSel.value.includes('arenoso')) cad = 48;
+
+    const nuevo = {
+      id,
+      nombre,
+      suelo: sueloTexto,
+      cad,
+      p: 0.40,
+      precipitacion_sistema: precipitacion,
+      potencia_hp: hp,
+      presion_bar: presion,
+      dga_l_s: dga,
+      ha
+    };
+
+    CUARTELES[id] = nuevo;
+    localStorage.setItem('smart_irrigation_cuarteles', JSON.stringify(CUARTELES));
+
+    poblarSelectorCuarteles();
+    cuartelActivoKey = id;
+    document.getElementById('select-cuartel').value = id;
+    cerrarModalNuevoCuartel();
+    calcularRiego();
+    alert(`🎉 ¡Cuartel "${nombre}" añadido con éxito al Copiloto!`);
+  }
+
   function generarOrden() {
-    alert("✅ Orden de Riego generada con éxito.\nSe ha exportado el archivo para la caseta de bombeo con parámetros validados.");
+    const c = CUARTELES[cuartelActivoKey];
+    const tiempo = document.getElementById('out-horas').innerText;
+    const lamina = document.getElementById('out-lamina-bruta').innerText;
+    const vol = document.getElementById('out-volumen-m3').innerText;
+    const kwh = document.getElementById('out-kwh').innerText;
+    const dga = c.dga_l_s || 35;
+    const fecha = new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const md = `======================================================================
+💧 ORDEN OPERATIVA DE RIEGO AGRÍCOLA · CASETA DE CONTROL
+======================================================================
+Fecha de Emisión : ${fecha}
+Responsable      : Cristián González Huenchún (Ing. Agrónomo)
+Cuartel / Fundo  : ${c.nombre}
+Superficie       : ${document.getElementById('input-ha').value} ha
+Suelo / CAD      : ${c.suelo}
+----------------------------------------------------------------------
+📋 PRESCRIPCIÓN DE RIEGO AUTORIZADA:
+- Tiempo de Bombeo : ${tiempo}
+- Lámina Bruta     : ${lamina}
+- Volumen de Agua  : ${vol}
+- Consumo Estimado : ${kwh}
+- Presión en Cabeza: ${c.presion_bar} bar
+----------------------------------------------------------------------
+⚖️ VERIFICACIÓN LEGAL DGA (CÓDIGO DE AGUAS):
+- Derechos Continuos Asignados: ${dga.toFixed(1)} L/s
+- Estado: APROBADO DGA PARA OPERACIÓN
+----------------------------------------------------------------------
+⚠️ INSTRUCCIONES DE TERRENO PARA REGADOR:
+1. Poner en marcha bombas preferentemente en tarifa nocturna.
+2. Comprobar presiones en manómetro de cabezal y retrolavado de filtros.
+3. Notificar cualquier anomalía en caudalímetros a la administración.
+======================================================================`;
+
+    document.getElementById('orden-body').innerText = md;
+    document.getElementById('modalOrden').style.display = 'flex';
+  }
+
+  function cerrarModalOrden() {
+    document.getElementById('modalOrden').style.display = 'none';
+  }
+
+  function copiarOrden() {
+    const txt = document.getElementById('orden-body').innerText;
+    navigator.clipboard.writeText(txt).then(() => {
+      alert("✅ Orden copiada al portapapeles. Lista para enviar a caseta de bombas.");
+    });
+  }
+
+  // Tema Claro / Oscuro
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('irrigation-theme', isLight ? 'light' : 'dark');
+    const icon = document.getElementById('themeIcon');
+    const txt = document.getElementById('themeText');
+    if (icon) icon.textContent = isLight ? '🌙' : '☀️';
+    if (txt) txt.textContent = isLight ? 'Modo Oscuro' : 'Modo Claro';
+    calcularRiego();
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem('irrigation-theme');
+    if (saved === 'light') {
+      document.body.classList.add('light-mode');
+      const icon = document.getElementById('themeIcon');
+      const txt = document.getElementById('themeText');
+      if (icon) icon.textContent = '🌙';
+      if (txt) txt.textContent = 'Modo Oscuro';
+    }
   }
 
   window.addEventListener('load', () => {
-    calcularRiego();
+    initTheme();
+    poblarSelectorCuarteles();
+    cambiarCuartel();
   });
 </script>
 
