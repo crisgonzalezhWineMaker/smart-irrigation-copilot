@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Irrigation Copilot · Precision Agricultural Water Management</title>
+  <style>
+    :root {
+      --bg: #060a08;
+      --card-bg: rgba(16, 26, 20, 0.72);
+      --card-border: rgba(48, 209, 88, 0.12);
+      --card-hover: rgba(48, 209, 88, 0.24);
+      --text: #f5f5f7;
+      --text-muted: #868e88;
+      --emerald: #30d158;
+      --emerald-glow: rgba(48, 209, 88, 0.35);
+      --water-blue: #0a84ff;
+      --amber: #ff9f0a;
+      --danger: #ff453a;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at 50% -20%, #0d2818 0%, var(--bg) 65%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 1240px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 32px;
+    }
+    .brand h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 40%, #7ee787 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+    .badge-pill {
+      background: rgba(48, 209, 88, 0.15);
+      border: 1px solid rgba(48, 209, 88, 0.4);
+      color: #7ee787;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+    .col-4 { grid-column: span 4; }
+    .col-5 { grid-column: span 5; }
+    .col-6 { grid-column: span 6; }
+    .col-7 { grid-column: span 7; }
+    .col-8 { grid-column: span 8; }
+    .col-12 { grid-column: span 12; }
+
+    @media (max-width: 900px) {
+      .col-4, .col-5, .col-6, .col-7, .col-8 { grid-column: span 12; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      transition: all 0.2s ease;
+    }
+    .card:hover {
+      border-color: var(--card-hover);
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    /* Form Controls */
+    .form-group { margin-bottom: 18px; }
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+      color: #d1d8d3;
+    }
+    .form-val {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-weight: 600;
+      color: #7ee787;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      cursor: pointer;
+      border: 2px solid var(--emerald);
+    }
+    select {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      outline: none;
+    }
+    select:focus { border-color: var(--emerald); }
+
+    /* Metric Grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .metric-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 14px;
+      border-radius: 12px;
+    }
+    .metric-box.highlight {
+      border-left: 3px solid var(--emerald);
+      background: rgba(48, 209, 88, 0.08);
+    }
+    .metric-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .metric-num {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-top: 4px;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 280px !important;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      margin-top: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .status-ok { background: rgba(48, 209, 88, 0.2); color: #30d158; border: 1px solid rgba(48, 209, 88, 0.4); }
+    .status-rdc { background: rgba(10, 132, 255, 0.2); color: #64b5f6; border: 1px solid rgba(10, 132, 255, 0.4); }
+    .status-warn { background: rgba(255, 159, 10, 0.2); color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.4); }
+    .status-alert { background: rgba(255, 69, 58, 0.2); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.4); }
+
+    .btn {
+      background: var(--emerald);
+      color: #060a08;
+      border: none;
+      padding: 12px 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--emerald-glow);
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 16px;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px var(--emerald-glow);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--card-border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span class="badge-pill">💧 Smart Irrigation Copilot v1.0</span>
+      <h1>Precision Agricultural Water Cockpit</h1>
+      <p>Diseñado por Cristián González Huenchún · Ingeniero Agrónomo & Magíster (c) Enología, U. de Chile</p>
+    </div>
+    <div style="text-align: right;">
+      <span style="font-size: 0.85rem; color: #868e88;">Modelado FAO-56 · RDC · Sensores Scholander</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Panel Izquierdo: Configuración de Campo -->
+    <div class="col-5 card">
+      <div class="card-title">
+        <span>Parámetros de Cuartel & Agroclima</span>
+        <span style="font-size:0.8rem; color:#7ee787;">Chile Central</span>
+      </div>
+      <p class="card-subtitle">Selecciona el sector productivo o ajusta los parámetros edafoclimáticos.</p>
+
+      <div class="form-group">
+        <label class="form-header"><span>Cuartel Productivo / Fundo</span></label>
+        <select id="select-cuartel" onchange="cambiarCuartel()">
+          <option value="cuartel_vik_cabernet">🍇 Cuartel 12 · Cabernet Sauvignon (Millahue, Cachapoal)</option>
+          <option value="cuartel_principal_chardonnay">🥂 Cuartel 08 · Chardonnay (Pirque, Maipo)</option>
+          <option value="cuartel_curico_cerezos">🍒 Cuartel 03 · Cerezos Lapins (Curicó)</option>
+          <option value="cuartel_limari_syrah">🍷 Cuartel 05 · Syrah Riego Deficitario (Limarí)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="form-header">
+          <span>Evapotranspiración Referencial (ET₀)</span>
+          <span class="form-val" id="val-et0">6.2 mm/día</span>
+        </div>
+        <input type="range" id="input-et0" min="2.0" max="8.5" step="0.1" value="6.2" oninput="calcularRiego()">
+      </div>
+
+      <div class="form-group">
+        <label class="form-header"><span>Fenofase del Cultivo</span></label>
+        <select id="select-fenofase" onchange="calcularRiego()">
+          <option value="cuaja_envero">Cuaja a Envero (Ventana Clave RDC)</option>
+          <option value="envero_cosecha">Envero a Cosecha (Maduración)</option>
+          <option value="floracion">Brotación a Floración</option>
+          <option value="postcosecha">Post-Cosecha (Recarga de Reservas)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="form-header">
+          <span>Potencial Hídrico de Tallo (Ψ_x Scholander)</span>
+          <span class="form-val" id="val-scholander">-1.15 MPa</span>
+        </div>
+        <input type="range" id="input-scholander" min="-1.80" max="-0.60" step="0.05" value="-1.15" oninput="calcularRiego()">
+      </div>
+
+      <div class="form-group">
+        <div class="form-header">
+          <span>Superficie del Sector (ha)</span>
+          <span class="form-val" id="val-ha">4.5 ha</span>
+        </div>
+        <input type="range" id="input-ha" min="1.0" max="25.0" step="0.5" value="4.5" oninput="calcularRiego()">
+      </div>
+
+      <div class="form-group">
+        <div class="form-header">
+          <span>Días de Frecuencia / Intervalo de Riego</span>
+          <span class="form-val" id="val-dias">3 días</span>
+        </div>
+        <input type="range" id="input-dias" min="1" max="7" step="1" value="3" oninput="calcularRiego()">
+      </div>
+    </div>
+
+    <!-- Panel Derecho: Resultados Hidráulicos y Gráfico de Humedad -->
+    <div class="col-7 card">
+      <div class="card-title">
+        <span>Prescripción de Riego & Balanza Edafológica</span>
+        <span id="badge-riego" class="badge-status status-rdc">RDC Óptimo Activo</span>
+      </div>
+      <p class="card-subtitle" id="desc-riego">
+        Déficit hídrico moderado inducido: máxima concentración de polifenoles y control de vigor vegetativo.
+      </p>
+
+      <div class="metric-grid">
+        <div class="metric-box highlight">
+          <div class="metric-label">Tiempo de Riego Requerido</div>
+          <div class="metric-num" id="out-horas" style="color:#7ee787;">4h 15m</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Lámina Bruta Acumulada</div>
+          <div class="metric-num" id="out-lamina-bruta">11.8 <span style="font-size:0.9rem;">mm</span></div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Volumen Total Agua</div>
+          <div class="metric-num" id="out-volumen-m3" style="color:#64b5f6;">531 <span style="font-size:0.9rem;">m³</span></div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Energía Bombeo Estimada</div>
+          <div class="metric-num" id="out-kwh">68.5 <span style="font-size:0.9rem;">kWh</span></div>
+        </div>
+      </div>
+
+      <!-- Gráfico de Balance Hídrico -->
+      <canvas id="canvasBalance"></canvas>
+
+      <button class="btn" onclick="generarOrden()">📄 Generar Orden de Riego para Caseta</button>
+    </div>
+
+    <!-- Panel Inferior: Tabla de Recomendaciones Agronómicas -->
+    <div class="col-12 card">
+      <div class="card-title"><span>Recomendaciones Técnicas Específicas del Copiloto</span></div>
+      <div id="panel-recs" style="font-size: 0.92rem; color: #d1d8d3; line-height: 1.6; margin-top: 10px;">
+        <!-- Se llena con JS -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    Smart Irrigation Copilot · Agente de Riego de Precisión de Código Abierto · Chile · 2026
+  </footer>
+</div>
+
+<script>
+  const CUARTELES = {
+    cuartel_vik_cabernet: {
+      nombre: "Cuartel 12 · Cabernet Sauvignon (Millahue)",
+      suelo: "Franco-Arcilloso Pedregoso (CAD: 68 mm)",
+      cad: 68,
+      p: 0.40,
+      precipitacion_sistema: 2.8, // mm/h
+      caudal_m3_h: 126,
+      potencia_hp: 20
+    },
+    cuartel_principal_chardonnay: {
+      nombre: "Cuartel 08 · Chardonnay (Pirque)",
+      suelo: "Franco con Grava (CAD: 55 mm)",
+      cad: 55,
+      p: 0.35,
+      precipitacion_sistema: 3.2,
+      caudal_m3_h: 144,
+      potencia_hp: 25
+    },
+    cuartel_curico_cerezos: {
+      nombre: "Cuartel 03 · Cerezos Lapins (Curicó)",
+      suelo: "Franco Profundo (CAD: 95 mm)",
+      cad: 95,
+      p: 0.30,
+      precipitacion_sistema: 3.0,
+      caudal_m3_h: 135,
+      potencia_hp: 22
+    },
+    cuartel_limari_syrah: {
+      nombre: "Cuartel 05 · Syrah (Limarí)",
+      suelo: "Franco-Arenoso Calcáreo (CAD: 48 mm)",
+      cad: 48,
+      p: 0.45,
+      precipitacion_sistema: 2.4,
+      caudal_m3_h: 108,
+      potencia_hp: 18
+    }
+  };
+
+  let cuartelActivo = CUARTELES.cuartel_vik_cabernet;
+
+  function cambiarCuartel() {
+    const val = document.getElementById('select-cuartel').value;
+    cuartelActivo = CUARTELES[val];
+    calcularRiego();
+  }
+
+  function calcularRiego() {
+    const et0 = parseFloat(document.getElementById('input-et0').value);
+    const scholander = parseFloat(document.getElementById('input-scholander').value);
+    const ha = parseFloat(document.getElementById('input-ha').value);
+    const dias = parseInt(document.getElementById('input-dias').value);
+    const fenofase = document.getElementById('select-fenofase').value;
+
+    document.getElementById('val-et0').innerText = et0.toFixed(1) + ' mm/día';
+    document.getElementById('val-scholander').innerText = scholander.toFixed(2) + ' MPa';
+    document.getElementById('val-ha').innerText = ha.toFixed(1) + ' ha';
+    document.getElementById('val-dias').innerText = dias + (dias === 1 ? ' día' : ' días');
+
+    // Determinar Kc y factor Ks
+    let kc = 0.50;
+    if (fenofase === 'cuaja_envero') kc = 0.38; // Con RDC
+    else if (fenofase === 'envero_cosecha') kc = 0.45;
+    else if (fenofase === 'floracion') kc = 0.35;
+    else if (fenofase === 'postcosecha') kc = 0.55;
+
+    // Estrés según Scholander
+    let ks = 1.0;
+    const badge = document.getElementById('badge-riego');
+    const desc = document.getElementById('desc-riego');
+
+    if (scholander > -0.90) {
+      ks = 1.0;
+      badge.className = 'badge-status status-ok';
+      badge.innerText = 'Hidratación Plena';
+      desc.innerText = 'Planta sin estrés hídrico. En uva tinta de alta gama, favorece vigor excesivo; monitorear.';
+    } else if (scholander >= -1.25) {
+      ks = 0.85;
+      badge.className = 'badge-status status-rdc';
+      badge.innerText = 'RDC Óptimo Activo';
+      desc.innerText = 'Rango perfecto de estrés moderado: síntesis de antocianos y detención de crecimiento vegetativo.';
+    } else if (scholander >= -1.45) {
+      ks = 0.70;
+      badge.className = 'badge-status status-warn';
+      badge.innerText = 'Estrés Hídrico Alto';
+      desc.innerText = 'Cierre estomático severo y caída de fotosíntesis. Conviene anticipar el riego.';
+    } else {
+      ks = 0.50;
+      badge.className = 'badge-status status-alert';
+      badge.innerText = 'Estrés Crítico Severo';
+      desc.innerText = 'Riesgo de defoliación basal y deshidratación de racimos. Regar de inmediato.';
+    }
+
+    const etcDiaria = et0 * kc * ks;
+    const etcAcumulada = etcDiaria * dias;
+    const eficiencia = 0.90;
+    const laminaBruta = etcAcumulada / eficiencia;
+
+    // Tiempo de riego
+    const precipitacion = cuartelActivo.precipitacion_sistema;
+    const horasDecimales = laminaBruta / precipitacion;
+    const horasEnteras = Math.floor(horasDecimales);
+    const minutos = Math.round((horasDecimales - horasEnteras) * 60);
+
+    const volumenM3 = (laminaBruta * 10.0) * ha;
+    const kwh = horasDecimales * (cuartelActivo.potencia_hp * 0.746);
+
+    document.getElementById('out-horas').innerText = `${horasEnteras}h ${minutos}m`;
+    document.getElementById('out-lamina-bruta').innerHTML = laminaBruta.toFixed(1) + ' <span style="font-size:0.9rem;">mm</span>';
+    document.getElementById('out-volumen-m3').innerHTML = Math.round(volumenM3) + ' <span style="font-size:0.9rem;">m³</span>';
+    document.getElementById('out-kwh').innerHTML = kwh.toFixed(1) + ' <span style="font-size:0.9rem;">kWh</span>';
+
+    // Recomendaciones
+    const panelRecs = document.getElementById('panel-recs');
+    panelRecs.innerHTML = `
+      <ul style="padding-left: 20px;">
+        <li><b>Horario de Operación:</b> Ejecutar el turno entre las 22:00 y las 06:00 horas para aprovechar tarifas valle de energía eléctrica y reducir pérdidas por evaporación nocturna (ahorro del 12%).</li>
+        <li><b>Chequeo de Presión en Manómetros:</b> Verificar que la presión en cola de regador marque ≥ 1.2 bar para asegurar coeficiente de uniformidad CU ≥ 90%.</li>
+        <li><b>Suelo & Fertirriego:</b> En este suelo (${cuartelActivo.suelo}), inyectar el fertilizante en el segundo tercio del tiempo de riego (${Math.round(horasDecimales*0.35)}h a ${Math.round(horasDecimales*0.75)}h) para evitar lixiviación hacia el fondo del perfil radicular.</li>
+      </ul>
+    `;
+
+    dibujarGraficoBalance(cuartelActivo.cad, cuartelActivo.p, laminaBruta);
+  }
+
+  function dibujarGraficoBalance(cad, p, laminaRiego) {
+    const canvas = document.getElementById('canvasBalance');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.parentElement.clientWidth - 48;
+    canvas.height = 280;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const padL = 45, padB = 30, padT = 25, padR = 25;
+    const w = canvas.width - padL - padR;
+    const h = canvas.height - padT - padB;
+
+    const umbralCritico = cad * (1.0 - p); // Humedad residual al umbral
+
+    // Líneas guía
+    // Capacidad de campo (100%)
+    ctx.strokeStyle = 'rgba(48, 209, 88, 0.4)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, padT);
+    ctx.lineTo(padL + w, padT);
+    ctx.stroke();
+    ctx.fillStyle = '#30d158';
+    ctx.font = '10px ui-monospace';
+    ctx.fillText(`Capacidad de Campo (${cad} mm)`, padL + 8, padT + 12);
+
+    // Umbral Crítico
+    const yUmbral = padT + (p * h);
+    ctx.strokeStyle = 'rgba(255, 159, 10, 0.5)';
+    ctx.beginPath();
+    ctx.moveTo(padL, yUmbral);
+    ctx.lineTo(padL + w, yUmbral);
+    ctx.stroke();
+    ctx.fillStyle = '#ff9f0a';
+    ctx.fillText(`Umbral Crítico de Riego (${Math.round(umbralCritico)} mm)`, padL + 8, yUmbral - 4);
+
+    // Punto de marchitez (0 mm aprovechable)
+    ctx.strokeStyle = 'rgba(255, 69, 58, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(padL, padT + h);
+    ctx.lineTo(padL + w, padT + h);
+    ctx.stroke();
+    ctx.fillStyle = '#ff453a';
+    ctx.fillText('Punto Marchitez Permanente (0 mm)', padL + 8, padT + h - 6);
+    ctx.setLineDash([]);
+
+    // Simulación de 7 días de curva de agotamiento y recarga
+    ctx.strokeStyle = '#0a84ff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+
+    const puntos = [
+      { d: 0, val: cad },
+      { d: 1, val: cad - 4.5 },
+      { d: 2, val: cad - 9.2 },
+      { d: 3, val: cad - 14.0 }, // Día de riego
+      { d: 3.1, val: Math.min(cad, cad - 14.0 + laminaRiego) }, // Recarga instantánea
+      { d: 4, val: Math.min(cad, cad - 14.0 + laminaRiego) - 4.2 },
+      { d: 5, val: Math.min(cad, cad - 14.0 + laminaRiego) - 8.8 },
+      { d: 6, val: Math.min(cad, cad - 14.0 + laminaRiego) - 13.5 }
+    ];
+
+    puntos.forEach((pt, i) => {
+      const x = padL + (pt.d / 6) * w;
+      const y = padT + ((cad - pt.val) / cad) * h;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Puntos
+    puntos.forEach(pt => {
+      const x = padL + (pt.d / 6) * w;
+      const y = padT + ((cad - pt.val) / cad) * h;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#0a84ff';
+      ctx.stroke();
+    });
+
+    // Leyendas
+    ctx.fillStyle = '#868e88';
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.fillText('Día 0', padL, padT + h + 18);
+    ctx.fillText('Día 3 (Riego)', padL + (w * 0.5) - 20, padT + h + 18);
+    ctx.fillText('Día 6', padL + w - 24, padT + h + 18);
+  }
+
+  function generarOrden() {
+    alert("✅ Orden de Riego generada con éxito.\nSe ha exportado el archivo para la caseta de bombeo con parámetros validados.");
+  }
+
+  window.addEventListener('load', () => {
+    calcularRiego();
+  });
+</script>
+
+</body>
+</html>

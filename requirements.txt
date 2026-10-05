@@ -1,0 +1,6 @@
+# Smart Irrigation Copilot - Dependencias
+# Diseñado para funcionar 100% con Python Standard Library (Zero-dependencies requeridas)
+# Paquetes opcionales para desarrollo y ciencia de datos:
+# pytest>=7.0.0
+# pandas>=1.5.0
+# matplotlib>=3.6.0
