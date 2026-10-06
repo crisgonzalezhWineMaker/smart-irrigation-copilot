@@ -4,11 +4,13 @@ chcp 65001 > nul
 cd /d "%~dp0"
 
 echo ========================================================
-echo   💧 Iniciando Visual Cockpit · Smart Irrigation Copilot
+echo   SMART IRRIGATION COPILOT - Visual Cockpit
+echo   Iniciando servidor en http://localhost:8060
 echo ========================================================
-echo Abriendo en tu navegador predeterminado...
-echo Localhost: http://localhost:8060/index.html
+echo.
+echo Presiona Ctrl+C para detener el servidor.
 echo.
 
+start "" http://localhost:8060/index.html
 python "dashboard\server.py"
 pause
